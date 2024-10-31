@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Sender</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        body {
+            background-color: #f4f4f9;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .results {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+        }
+        .spinner-border {
+            width: 2rem;
+            height: 2rem;
+        }
+        .alert {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Send Code to URL</h1>
+        <form id="codeForm">
+            <div class="form-group">
+                <label for="url">Enter URL</label>
+                <input type="text" id="url" name="url" class="form-control" placeholder="Enter URL" required>
+            </div>
+            <div class="form-group">
+                <label for="code">Enter Code</label>
+                <textarea id="code" name="code" class="form-control" placeholder="Enter Code" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="times">Number of Attempts</label>
+                <input type="number" id="times" name="times" class="form-control" placeholder="Number of Attempts" required min="1">
+            </div>
+            <div class="form-group">
+                <label for="interval">Interval (in seconds)</label>
+                <input type="number" id="interval" name="interval" class="form-control" placeholder="Interval (in seconds)" required min="0">
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Send Code</button>
+        </form>
+        <div class="loading" id="loading">
+            <div class="spinner-border" role="status"></div>
+            <span> Sending requests... Please wait.</span>
+        </div>
+        <div class="results" id="results"></div>
+    </div>
+    
+    <script>
+        const socket = io.connect();
+
+        // Listen for updates from the server
+        socket.on('update', function(msg) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += `<div class="alert alert-info">${msg}</div>`;
+        });
+
+        document.getElementById('codeForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            document.getElementById('loading').style.display = 'block'; // Show loading indicator
+            document.getElementById('results').innerHTML = ''; // Clear previous results
+            
+            try {
+                const response = await fetch('/', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const result = await response.json();
+                    document.getElementById('results').innerHTML = `<div class="alert alert-danger">Error: ${result.error}</div>`;
+                }
+            } catch (error) {
+                document.getElementById('results').innerHTML = `<div class="alert alert-danger">An error occurred: ${error.message}</div>`;
+            } finally {
+                document.getElementById('loading').style.display = 'none'; // Hide loading indicator
+            }
+        };
+    </script>
+</body>
+</html>
