@@ -1,0 +1,7 @@
+Flask
+Flask-SocketIO
+Flask-CORS
+requests
+eventlet
+piggaga_models
+Werkzeug
