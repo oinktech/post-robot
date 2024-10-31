@@ -14,10 +14,11 @@ def send_code(url, code, times, interval):
     for i in range(times):
         try:
             response = requests.post(url, data={'code': code})
+            response_text = response.text  # Get the response text
             if response.status_code == 200:
-                socketio.emit('update', f"Attempt {i + 1}: Successful - {response.text}")
+                socketio.emit('update', f"Attempt {i + 1}: Successful - {response_text}")
             else:
-                socketio.emit('update', f"Attempt {i + 1}: Failed - Status Code: {response.status_code}")
+                socketio.emit('update', f"Attempt {i + 1}: Failed - Status Code: {response.status_code}, Response: {response_text}")
         except requests.exceptions.RequestException as e:
             socketio.emit('update', f"Attempt {i + 1}: Request failed - {e}")
         except Exception as e:
