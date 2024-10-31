@@ -68,6 +68,7 @@
         socket.on('update', function(msg) {
             const resultsDiv = document.getElementById('results');
             resultsDiv.innerHTML += `<div class="alert alert-info">${msg}</div>`;
+            resultsDiv.scrollTop = resultsDiv.scrollHeight; // Auto-scroll to the latest message
         });
 
         document.getElementById('codeForm').onsubmit = async function(e) {
